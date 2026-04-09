@@ -12,4 +12,6 @@ public interface IReferralService
     Task<IEnumerable<Referral>> GetAllAsync();
     Task AssignToUserAsync(int referralId, string assignedUserId);
     Task<bool> ChangeStatusAsync(int referralId, string userId, ReferralStatus newStatus, string? notes);
+    Task RespondToMoreInfoAsync(int referralId, string userId, string responseText);
+    Task<IEnumerable<ApplicationUser>> GetTalentTeamUsersAsync();
 }

@@ -7,10 +7,12 @@ namespace ReferralTracker.Controllers;
 public class AccountController : Controller
 {
     private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public AccountController(SignInManager<ApplicationUser> signInManager)
+    public AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
     {
         _signInManager = signInManager;
+        _userManager = userManager;
     }
 
     [HttpGet]
@@ -33,7 +35,14 @@ public class AccountController : Controller
 
         if (result.Succeeded)
         {
-            return RedirectToAction("Index", "Home");
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user != null)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                if (roles.Contains("Admin") || roles.Contains("TalentTeam"))
+                    return RedirectToAction("AllReferrals", "Referral");
+            }
+            return RedirectToAction("Index", "Referral");
         }
 
         ModelState.AddModelError(string.Empty, "Invalid login attempt.");

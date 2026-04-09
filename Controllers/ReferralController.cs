@@ -97,8 +97,13 @@ public class ReferralController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        ViewData["IsAdminOrTalent"] = role == "Admin" || role == "TalentTeam";
+        ViewData["CurrentUserRole"] = role;
         ViewData["CurrentUserId"] = userId;
+
+        if (role == "Admin")
+        {
+            ViewData["TalentTeamUsers"] = await _service.GetTalentTeamUsersAsync();
+        }
 
         return View(referral);
     }
@@ -113,14 +118,10 @@ public class ReferralController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Roles = "Admin,TalentTeam")]
-    public async Task<IActionResult> AssignToMe(int referralId)
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> AssignTo(int referralId, string assignToUserId)
     {
-        var userId = GetCurrentUserId();
-        if (userId == null)
-            return Forbid();
-
-        await _service.AssignToUserAsync(referralId, userId);
+        await _service.AssignToUserAsync(referralId, assignToUserId);
         return RedirectToAction(nameof(Details), new { id = referralId });
     }
 
@@ -133,10 +134,61 @@ public class ReferralController : Controller
         if (userId == null)
             return Forbid();
 
+        // TalentTeam can only change status on referrals assigned to them
+        if (User.IsInRole("TalentTeam") && !User.IsInRole("Admin"))
+        {
+            var referral = await _service.GetByIdAsync(referralId, userId, "TalentTeam");
+            if (referral == null || referral.AssignedToUserId != userId)
+            {
+                TempData["ErrorMessage"] = "You can only change the status of referrals assigned to you.";
+                return RedirectToAction(nameof(Details), new { id = referralId });
+            }
+        }
+
         var result = await _service.ChangeStatusAsync(referralId, userId, newStatus, notes);
         if (!result)
             TempData["ErrorMessage"] = "Invalid status transition.";
 
+        return RedirectToAction(nameof(Details), new { id = referralId });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RespondToMoreInfo(int referralId, string responseText, IFormFile? resume)
+    {
+        var userId = GetCurrentUserId();
+        if (userId == null)
+            return Forbid();
+
+        var referral = await _service.GetByIdAsync(referralId, userId, "Employee");
+        if (referral == null || referral.ReferredByUserId != userId || referral.Status != ReferralStatus.MoreInfoRequested)
+        {
+            TempData["ErrorMessage"] = "Unable to respond to this referral.";
+            return RedirectToAction(nameof(Details), new { id = referralId });
+        }
+
+        if (resume != null && resume.Length > 0)
+        {
+            var ext = Path.GetExtension(resume.FileName).ToLowerInvariant();
+            if (ext != ".pdf" && ext != ".docx")
+            {
+                TempData["ErrorMessage"] = "Only PDF and DOCX files are accepted.";
+                return RedirectToAction(nameof(Details), new { id = referralId });
+            }
+
+            var uploadsDir = Path.Combine(_env.ContentRootPath, "App_Data", "Resumes");
+            Directory.CreateDirectory(uploadsDir);
+
+            var uniqueName = Guid.NewGuid() + ext;
+            var filePath = Path.Combine(uploadsDir, uniqueName);
+
+            using var stream = new FileStream(filePath, FileMode.Create);
+            await resume.CopyToAsync(stream);
+
+            await _service.UpdateResumeAsync(referralId, resume.FileName, filePath);
+        }
+
+        await _service.RespondToMoreInfoAsync(referralId, userId, responseText);
         return RedirectToAction(nameof(Details), new { id = referralId });
     }
 

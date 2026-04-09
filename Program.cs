@@ -76,6 +76,20 @@ using (var scope = app.Services.CreateScope())
         await userManager.CreateAsync(employee, "Password123!");
         await userManager.AddToRoleAsync(employee, "Employee");
     }
+
+    // Seed test recruiter user
+    if (await userManager.FindByEmailAsync("recruiter@referraltracker.com") == null)
+    {
+        var recruiter = new ApplicationUser
+        {
+            UserName = "recruiter@referraltracker.com",
+            Email = "recruiter@referraltracker.com",
+            FullName = "Test Recruiter",
+            EmailConfirmed = true
+        };
+        await userManager.CreateAsync(recruiter, "Password123!");
+        await userManager.AddToRoleAsync(recruiter, "TalentTeam");
+    }
 }
 
 // Configure the HTTP request pipeline.

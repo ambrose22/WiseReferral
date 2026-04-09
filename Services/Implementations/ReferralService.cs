@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ReferralTracker.Data;
 using ReferralTracker.Models;
@@ -9,10 +10,12 @@ namespace ReferralTracker.Services.Implementations;
 public class ReferralService : IReferralService
 {
     private readonly AppDbContext _context;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public ReferralService(AppDbContext context)
+    public ReferralService(AppDbContext context, UserManager<ApplicationUser> userManager)
     {
         _context = context;
+        _userManager = userManager;
     }
 
     public async Task<IEnumerable<Referral>> GetByUserAsync(string userId)
@@ -102,16 +105,21 @@ public class ReferralService : IReferralService
         var referral = await _context.Referrals.FindAsync(referralId);
         if (referral == null) return;
 
+        var assignedUser = await _userManager.FindByIdAsync(assignedUserId);
+        var recruiterName = assignedUser?.FullName ?? assignedUser?.Email ?? "a recruiter";
+
+        var now = DateTime.UtcNow;
         referral.AssignedToUserId = assignedUserId;
-        referral.UpdatedUtc = DateTime.UtcNow;
+        referral.Status = ReferralStatus.Screening;
+        referral.UpdatedUtc = now;
 
         _context.ReferralComments.Add(new ReferralComment
         {
             ReferralId = referralId,
             UserId = assignedUserId,
-            Comment = "Referral assigned.",
+            Comment = $"Assigned to {recruiterName} and moved to Screening.",
             Action = "Assigned",
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = now
         });
 
         await _context.SaveChangesAsync();
@@ -119,10 +127,8 @@ public class ReferralService : IReferralService
 
     private static readonly Dictionary<ReferralStatus, ReferralStatus[]> ValidTransitions = new()
     {
-        { ReferralStatus.Submitted, new[] { ReferralStatus.UnderReview } },
-        { ReferralStatus.UnderReview, new[] { ReferralStatus.Screening, ReferralStatus.Declined, ReferralStatus.MoreInfoRequested } },
-        { ReferralStatus.MoreInfoRequested, new[] { ReferralStatus.UnderReview } },
-        { ReferralStatus.Screening, new[] { ReferralStatus.Interviewing, ReferralStatus.Declined } },
+        { ReferralStatus.Screening, new[] { ReferralStatus.Interviewing, ReferralStatus.Declined, ReferralStatus.MoreInfoRequested } },
+        { ReferralStatus.MoreInfoRequested, new[] { ReferralStatus.Screening } },
         { ReferralStatus.Interviewing, new[] { ReferralStatus.Hired, ReferralStatus.Declined } },
     };
 
@@ -157,5 +163,31 @@ public class ReferralService : IReferralService
 
         await _context.SaveChangesAsync();
         return true;
+    }
+
+    public async Task RespondToMoreInfoAsync(int referralId, string userId, string responseText)
+    {
+        var referral = await _context.Referrals.FindAsync(referralId);
+        if (referral == null) return;
+
+        var now = DateTime.UtcNow;
+        referral.Status = ReferralStatus.Screening;
+        referral.UpdatedUtc = now;
+
+        _context.ReferralComments.Add(new ReferralComment
+        {
+            ReferralId = referralId,
+            UserId = userId,
+            Comment = responseText,
+            Action = "Responded",
+            CreatedUtc = now
+        });
+
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<IEnumerable<ApplicationUser>> GetTalentTeamUsersAsync()
+    {
+        return await _userManager.GetUsersInRoleAsync("TalentTeam");
     }
 }
