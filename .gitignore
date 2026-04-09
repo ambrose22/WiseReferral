@@ -1,0 +1,30 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## SQLite databases
+*.db
+*.db-shm
+*.db-wal
+
+## App data (uploaded resumes)
+App_Data/
+
+## IDE
+.vs/
+.vscode/
+*.swp
+*~
+
+## OS
+Thumbs.db
+.DS_Store
+
+## Secrets
+appsettings.*.json
+!appsettings.json
+!appsettings.Development.json

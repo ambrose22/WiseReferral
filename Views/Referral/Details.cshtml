@@ -1,0 +1,195 @@
+@model ReferralTracker.Models.Referral
+@using ReferralTracker.Services.Implementations
+
+@{
+    ViewData["Title"] = "Referral Details";
+
+    var isAdminOrTalent = (bool)(ViewData["IsAdminOrTalent"] ?? false);
+    var currentUserId = ViewData["CurrentUserId"] as string;
+
+    var statusBadgeClass = Model.Status switch
+    {
+        ReferralTracker.Models.ReferralStatus.Hired => "bg-success",
+        ReferralTracker.Models.ReferralStatus.Declined => "bg-danger",
+        ReferralTracker.Models.ReferralStatus.Interviewing => "bg-primary",
+        ReferralTracker.Models.ReferralStatus.MoreInfoRequested => "bg-warning text-dark",
+        _ => "bg-secondary"
+    };
+
+    var validNextStatuses = ReferralService.GetValidNextStatuses(Model.Status);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Referral Details</h2>
+    <a asp-action="Index" class="btn btn-outline-secondary">Back to My Referrals</a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <strong>@Model.CandidateFirstName @Model.CandidateLastName</strong>
+        <span class="badge @statusBadgeClass">@Model.Status</span>
+    </div>
+    <div class="card-body">
+        <div class="row mb-2">
+            <div class="col-md-6">
+                <strong>Email:</strong> @Model.CandidateEmail
+            </div>
+            <div class="col-md-6">
+                <strong>Phone:</strong> @(Model.CandidatePhone ?? "N/A")
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-md-6">
+                <strong>LinkedIn:</strong>
+                @if (!string.IsNullOrEmpty(Model.CandidateLinkedIn))
+                {
+                    <a href="@Model.CandidateLinkedIn" target="_blank">@Model.CandidateLinkedIn</a>
+                }
+                else
+                {
+                    <span>N/A</span>
+                }
+            </div>
+            <div class="col-md-6">
+                <strong>Location:</strong> @Model.Location
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-md-6">
+                <strong>Referred By:</strong> @Model.ReferredByUser?.Email
+            </div>
+            <div class="col-md-6">
+                <strong>Resume:</strong>
+                @if (!string.IsNullOrEmpty(Model.ResumeFileName))
+                {
+                    <a asp-action="DownloadResume" asp-route-id="@Model.Id">@Model.ResumeFileName</a>
+                }
+                else
+                {
+                    <span>None uploaded</span>
+                }
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-md-6">
+                <strong>Assigned To:</strong> @(Model.AssignedToUser?.Email ?? "Unassigned")
+            </div>
+            <div class="col-md-6">
+                <strong>Submitted:</strong> @Model.CreatedUtc.ToString("dd MMM yyyy HH:mm")
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-md-12">
+                <strong>Relationship:</strong> @Model.Relationship
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-md-12">
+                <strong>Justification:</strong>
+                <p class="mb-0">@Model.Justification</p>
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(Model.DeclineReason))
+        {
+            <div class="row mb-2">
+                <div class="col-md-12">
+                    <strong>Decline Reason:</strong>
+                    <p class="mb-0 text-danger">@Model.DeclineReason</p>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@if (isAdminOrTalent)
+{
+    <div class="card mb-4">
+        <div class="card-header"><strong>Actions</strong></div>
+        <div class="card-body">
+            @if (Model.AssignedToUserId != currentUserId)
+            {
+                <form asp-action="AssignToMe" method="post" class="mb-3">
+                    <input type="hidden" name="referralId" value="@Model.Id" />
+                    <button type="submit" class="btn btn-outline-primary">Assign to Me</button>
+                </form>
+            }
+            else
+            {
+                <p class="text-muted mb-3">This referral is assigned to you.</p>
+            }
+
+            @if (validNextStatuses.Length > 0)
+            {
+                <hr />
+                <h6>Change Status</h6>
+                <form asp-action="ChangeStatus" method="post">
+                    <input type="hidden" name="referralId" value="@Model.Id" />
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="newStatus" class="form-label">New Status</label>
+                            <select name="newStatus" id="newStatus" class="form-select">
+                                @foreach (var status in validNextStatuses)
+                                {
+                                    <option value="@status">@status</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-8 mb-3">
+                            <label for="notes" class="form-label">Notes</label>
+                            <textarea name="notes" id="notes" class="form-control" rows="2" placeholder="Required for Declined, optional otherwise"></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Status</button>
+                </form>
+            }
+            else
+            {
+                <hr />
+                <p class="text-muted">No further status transitions available.</p>
+            }
+        </div>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+<h4>Activity Timeline</h4>
+<hr />
+
+@if (Model.Comments == null || !Model.Comments.Any())
+{
+    <p class="text-muted">No activity recorded yet.</p>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var comment in Model.Comments.OrderBy(c => c.CreatedUtc))
+        {
+            var actionBadgeClass = comment.Action switch
+            {
+                "Submitted" => "bg-primary",
+                "Assigned" => "bg-info text-dark",
+                "UnderReview" => "bg-secondary",
+                "Screening" => "bg-secondary",
+                "MoreInfoRequested" => "bg-warning text-dark",
+                "Interviewing" => "bg-primary",
+                "Hired" => "bg-success",
+                "Declined" => "bg-danger",
+                _ => "bg-secondary"
+            };
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="badge @actionBadgeClass me-2">@comment.Action</span>
+                        <small class="text-muted">@comment.User?.Email</small>
+                    </div>
+                    <small class="text-muted">@comment.CreatedUtc.ToString("dd MMM yyyy HH:mm")</small>
+                </div>
+                <p class="mb-0 mt-1">@comment.Comment</p>
+            </div>
+        }
+    </div>
+}
