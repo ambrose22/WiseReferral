@@ -6,7 +6,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>My Referrals</h2>
-    <a asp-action="Create" class="btn btn-primary">Submit a Referral</a>
+    <a asp-action="Create" class="btn btn-peach">Submit a Referral</a>
 </div>
 
 @if (!Model.Any())
@@ -17,35 +17,38 @@
 }
 else
 {
-    <table class="table table-hover">
-        <thead>
-            <tr>
-                <th>Candidate Name</th>
-                <th>Location</th>
-                <th>Status</th>
-                <th>Date Submitted</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var r in Model)
-            {
-                var badgeClass = r.Status switch
-                {
-                    ReferralTracker.Models.ReferralStatus.Hired => "bg-success",
-                    ReferralTracker.Models.ReferralStatus.Declined => "bg-danger",
-                    ReferralTracker.Models.ReferralStatus.Interviewing => "bg-primary",
-                    ReferralTracker.Models.ReferralStatus.MoreInfoRequested => "bg-warning text-dark",
-                    _ => "bg-secondary"
-                };
+    <div class="content-card">
+        <table class="table table-hover mb-0">
+            <thead>
                 <tr>
-                    <td>@r.CandidateFirstName @r.CandidateLastName</td>
-                    <td>@r.Location</td>
-                    <td><span class="badge @badgeClass">@r.Status</span></td>
-                    <td>@r.CreatedUtc.ToString("dd MMM yyyy")</td>
-                    <td><a asp-action="Details" asp-route-id="@r.Id" class="btn btn-sm btn-outline-secondary">View</a></td>
+                    <th>Candidate Name</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                    <th>Date Submitted</th>
+                    <th></th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var r in Model)
+                {
+                    var badgeClass = r.Status switch
+                    {
+                        ReferralTracker.Models.ReferralStatus.Hired => "badge-hired",
+                        ReferralTracker.Models.ReferralStatus.Declined => "badge-declined",
+                        ReferralTracker.Models.ReferralStatus.Interviewing => "badge-interviewing",
+                        ReferralTracker.Models.ReferralStatus.Screening => "badge-screening",
+                        ReferralTracker.Models.ReferralStatus.MoreInfoRequested => "badge-moreinfo",
+                        _ => "badge-submitted"
+                    };
+                    <tr>
+                        <td>@r.CandidateFirstName @r.CandidateLastName</td>
+                        <td>@r.Location</td>
+                        <td><span class="badge @badgeClass">@r.Status</span></td>
+                        <td>@r.CreatedUtc.ToString("dd MMM yyyy")</td>
+                        <td><a asp-action="Details" asp-route-id="@r.Id" class="btn btn-sm btn-outline-primary">View</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }

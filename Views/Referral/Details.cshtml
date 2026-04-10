@@ -10,11 +10,12 @@
 
     var statusBadgeClass = Model.Status switch
     {
-        ReferralTracker.Models.ReferralStatus.Hired => "bg-success",
-        ReferralTracker.Models.ReferralStatus.Declined => "bg-danger",
-        ReferralTracker.Models.ReferralStatus.Interviewing => "bg-primary",
-        ReferralTracker.Models.ReferralStatus.MoreInfoRequested => "bg-warning text-dark",
-        _ => "bg-secondary"
+        ReferralTracker.Models.ReferralStatus.Hired => "badge-hired",
+        ReferralTracker.Models.ReferralStatus.Declined => "badge-declined",
+        ReferralTracker.Models.ReferralStatus.Interviewing => "badge-interviewing",
+        ReferralTracker.Models.ReferralStatus.Screening => "badge-screening",
+        ReferralTracker.Models.ReferralStatus.MoreInfoRequested => "badge-moreinfo",
+        _ => "badge-submitted"
     };
 
     var validNextStatuses = ReferralService.GetValidNextStatuses(Model.Status);
@@ -256,15 +257,15 @@ else
         {
             var actionBadgeClass = comment.Action switch
             {
-                "Submitted" => "bg-primary",
-                "Assigned" => "bg-info text-dark",
-                "Responded" => "bg-info text-dark",
-                "Screening" => "bg-secondary",
-                "MoreInfoRequested" => "bg-warning text-dark",
-                "Interviewing" => "bg-primary",
-                "Hired" => "bg-success",
-                "Declined" => "bg-danger",
-                _ => "bg-secondary"
+                "Submitted" => "badge-submitted",
+                "Assigned" => "badge-screening",
+                "Responded" => "badge-responded",
+                "Screening" => "badge-screening",
+                "MoreInfoRequested" => "badge-moreinfo",
+                "Interviewing" => "badge-interviewing",
+                "Hired" => "badge-hired",
+                "Declined" => "badge-declined",
+                _ => "badge-submitted"
             };
             <div class="list-group-item">
                 <div class="d-flex justify-content-between align-items-start">

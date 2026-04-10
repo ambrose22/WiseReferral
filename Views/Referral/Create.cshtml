@@ -4,80 +4,81 @@
     ViewData["Title"] = "Submit a Referral";
 }
 
-<h2>Submit a Referral</h2>
-<hr />
+<h2 class="mb-3">Submit a Referral</h2>
 
-<div class="row">
-    <div class="col-md-8">
-        <form asp-action="Create" method="post" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="content-card">
+    <div class="row">
+        <div class="col-md-8">
+            <form asp-action="Create" method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label asp-for="CandidateFirstName" class="form-label"></label>
-                    <input asp-for="CandidateFirstName" class="form-control" />
-                    <span asp-validation-for="CandidateFirstName" class="text-danger"></span>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="CandidateFirstName" class="form-label"></label>
+                        <input asp-for="CandidateFirstName" class="form-control" />
+                        <span asp-validation-for="CandidateFirstName" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="CandidateLastName" class="form-label"></label>
+                        <input asp-for="CandidateLastName" class="form-control" />
+                        <span asp-validation-for="CandidateLastName" class="text-danger"></span>
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <label asp-for="CandidateLastName" class="form-label"></label>
-                    <input asp-for="CandidateLastName" class="form-control" />
-                    <span asp-validation-for="CandidateLastName" class="text-danger"></span>
-                </div>
-            </div>
 
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label asp-for="CandidateEmail" class="form-label"></label>
-                    <input asp-for="CandidateEmail" class="form-control" type="email" />
-                    <span asp-validation-for="CandidateEmail" class="text-danger"></span>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="CandidateEmail" class="form-label"></label>
+                        <input asp-for="CandidateEmail" class="form-control" type="email" />
+                        <span asp-validation-for="CandidateEmail" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="CandidatePhone" class="form-label"></label>
+                        <input asp-for="CandidatePhone" class="form-control" />
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <label asp-for="CandidatePhone" class="form-label"></label>
-                    <input asp-for="CandidatePhone" class="form-control" />
+
+                <div class="mb-3">
+                    <label asp-for="CandidateLinkedIn" class="form-label"></label>
+                    <input asp-for="CandidateLinkedIn" class="form-control" placeholder="https://linkedin.com/in/..." />
                 </div>
-            </div>
 
-            <div class="mb-3">
-                <label asp-for="CandidateLinkedIn" class="form-label"></label>
-                <input asp-for="CandidateLinkedIn" class="form-control" placeholder="https://linkedin.com/in/..." />
-            </div>
+                <div class="mb-3">
+                    <label asp-for="Location" class="form-label"></label>
+                    <select asp-for="Location" class="form-select">
+                        <option value="" disabled selected>-- Select Location --</option>
+                        @foreach (var loc in ReferralTracker.Models.ViewModels.ReferralViewModel.Locations)
+                        {
+                            <option value="@loc">@loc</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Location" class="text-danger"></span>
+                </div>
 
-            <div class="mb-3">
-                <label asp-for="Location" class="form-label"></label>
-                <select asp-for="Location" class="form-select">
-                    <option value="" disabled selected>-- Select Location --</option>
-                    @foreach (var loc in ReferralTracker.Models.ViewModels.ReferralViewModel.Locations)
+                <div class="mb-3">
+                    <label asp-for="Relationship" class="form-label"></label>
+                    <input asp-for="Relationship" class="form-control" placeholder="e.g. Former colleague, university friend" />
+                    <span asp-validation-for="Relationship" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Justification" class="form-label"></label>
+                    <textarea asp-for="Justification" class="form-control" rows="4" placeholder="Why would this person be a great fit?"></textarea>
+                    <span asp-validation-for="Justification" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label for="resume" class="form-label">Resume (PDF or DOCX)</label>
+                    <input type="file" class="form-control" id="resume" name="resume" accept=".pdf,.docx" />
+                    @if (ViewData.ModelState.ContainsKey("resume") && ViewData.ModelState["resume"]!.Errors.Count > 0)
                     {
-                        <option value="@loc">@loc</option>
+                        <span class="text-danger">@ViewData.ModelState["resume"]!.Errors[0].ErrorMessage</span>
                     }
-                </select>
-                <span asp-validation-for="Location" class="text-danger"></span>
-            </div>
+                </div>
 
-            <div class="mb-3">
-                <label asp-for="Relationship" class="form-label"></label>
-                <input asp-for="Relationship" class="form-control" placeholder="e.g. Former colleague, university friend" />
-                <span asp-validation-for="Relationship" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Justification" class="form-label"></label>
-                <textarea asp-for="Justification" class="form-control" rows="4" placeholder="Why would this person be a great fit?"></textarea>
-                <span asp-validation-for="Justification" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label for="resume" class="form-label">Resume (PDF or DOCX)</label>
-                <input type="file" class="form-control" id="resume" name="resume" accept=".pdf,.docx" />
-                @if (ViewData.ModelState.ContainsKey("resume") && ViewData.ModelState["resume"]!.Errors.Count > 0)
-                {
-                    <span class="text-danger">@ViewData.ModelState["resume"]!.Errors[0].ErrorMessage</span>
-                }
-            </div>
-
-            <button type="submit" class="btn btn-primary">Submit Referral</button>
-            <a asp-action="Index" class="btn btn-outline-secondary ms-2">Cancel</a>
-        </form>
+                <button type="submit" class="btn btn-peach">Submit Referral</button>
+                <a asp-action="Index" class="btn btn-outline-secondary ms-2">Cancel</a>
+            </form>
+        </div>
     </div>
 </div>
 

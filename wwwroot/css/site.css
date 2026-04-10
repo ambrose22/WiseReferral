@@ -1,31 +1,252 @@
+/* === WiseReferral Design Tokens === */
+:root {
+    --wr-navy: #141E30;
+    --wr-blue: #2850A8;
+    --wr-blue-hover: #1E3D8F;
+    --wr-peach: #F5B895;
+    --wr-bg: #F5F7FA;
+    --wr-card-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    --wr-card-radius: 10px;
+    --wr-text: #1a1a1a;
+    --wr-text-muted: #666666;
+    --wr-table-header: #E8EDF3;
+}
+
+/* === Base === */
 html {
-  font-size: 14px;
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    html {
+        font-size: 16px;
+    }
 }
 
 body {
-  margin-bottom: 60px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--wr-bg);
+    color: var(--wr-text);
+    margin-bottom: 60px;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+.text-muted {
+    color: var(--wr-text-muted) !important;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+/* === Focus rings === */
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus, .form-select:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem var(--wr-blue);
+    border-color: var(--wr-blue);
+}
+
+/* === Navbar === */
+.navbar-wr {
+    background-color: var(--wr-navy);
+    padding: 0.6rem 0;
+}
+
+.navbar-wr .navbar-brand {
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.navbar-wr .navbar-brand:hover {
+    color: #fff;
+}
+
+.navbar-wr .nav-link {
+    color: rgba(255, 255, 255, 0.85);
+    transition: color 0.15s, opacity 0.15s;
+}
+
+.navbar-wr .nav-link:hover,
+.navbar-wr .nav-link:focus {
+    color: #fff;
+    opacity: 1;
+}
+
+.navbar-wr .nav-link.active {
+    color: #fff;
+    border-bottom: 2px solid var(--wr-blue);
+    padding-bottom: calc(0.5rem - 2px);
+}
+
+.navbar-wr .navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.navbar-wr .navbar-toggler-icon {
+    filter: invert(1);
+}
+
+.navbar-wr .btn-link {
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+}
+
+.navbar-wr .btn-link:hover {
+    color: #fff;
+}
+
+.navbar-wr .nav-user {
+    color: rgba(255, 255, 255, 0.65);
+}
+
+/* === Footer === */
+.footer-wr {
+    background-color: var(--wr-navy);
+    color: rgba(255, 255, 255, 0.7);
+    padding: 1rem 0;
+}
+
+.footer-wr a {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.footer-wr a:hover {
+    color: #fff;
+}
+
+/* === Cards === */
+.card {
+    border: none;
+    border-radius: var(--wr-card-radius);
+    box-shadow: var(--wr-card-shadow);
+    background-color: #fff;
+}
+
+.card-header {
+    border-radius: var(--wr-card-radius) var(--wr-card-radius) 0 0;
+    background-color: #fff;
+    border-bottom: 1px solid #eee;
+}
+
+/* === Tables === */
+.table thead th {
+    background-color: var(--wr-table-header);
+    border-bottom: 2px solid #dce3ec;
+    font-weight: 600;
+    color: var(--wr-text);
+}
+
+.table-hover tbody tr:hover {
+    background-color: #eef2f8;
+}
+
+.table {
+    border-radius: var(--wr-card-radius);
+    overflow: hidden;
+}
+
+/* === Status badges (pill) === */
+.badge {
+    border-radius: 20px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+.badge-submitted {
+    background-color: #6C757D;
+    color: #fff;
+}
+
+.badge-screening {
+    background-color: #2850A8;
+    color: #fff;
+}
+
+.badge-interviewing {
+    background-color: #17A2B8;
+    color: #fff;
+}
+
+.badge-hired {
+    background-color: #28A745;
+    color: #fff;
+}
+
+.badge-declined {
+    background-color: #DC3545;
+    color: #fff;
+}
+
+.badge-moreinfo {
+    background-color: #FFC107;
+    color: #1a1a1a;
+}
+
+.badge-responded {
+    background-color: #17A2B8;
+    color: #fff;
+}
+
+/* === Buttons === */
+.btn-primary {
+    background-color: var(--wr-blue);
+    border-color: var(--wr-blue);
+}
+
+.btn-primary:hover, .btn-primary:active {
+    background-color: var(--wr-blue-hover);
+    border-color: var(--wr-blue-hover);
+}
+
+.btn-outline-primary {
+    color: var(--wr-blue);
+    border-color: var(--wr-blue);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--wr-blue);
+    border-color: var(--wr-blue);
+    color: #fff;
+}
+
+.btn-peach {
+    background-color: var(--wr-peach);
+    border-color: var(--wr-peach);
+    color: #1a1a1a;
+    font-weight: 600;
+}
+
+.btn-peach:hover {
+    background-color: #f0a57c;
+    border-color: #f0a57c;
+    color: #1a1a1a;
+}
+
+/* === Links === */
+a {
+    color: var(--wr-blue);
+}
+
+a:hover {
+    color: var(--wr-blue-hover);
+}
+
+/* === Content card wrapper === */
+.content-card {
+    background: #fff;
+    border-radius: var(--wr-card-radius);
+    box-shadow: var(--wr-card-shadow);
+    padding: 1.5rem;
+}
+
+/* === Login page === */
+.login-card {
+    max-width: 420px;
+    margin: 3rem auto;
+}
+
+.login-card .card-body {
+    padding: 2rem;
+}
+
+.login-heading {
+    font-weight: 700;
+    color: var(--wr-navy);
 }

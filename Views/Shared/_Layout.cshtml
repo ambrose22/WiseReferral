@@ -11,7 +11,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-wr mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">WiseReferral</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -20,19 +20,16 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Referral" asp-action="Index">My Referrals</a>
+                                <a class="nav-link" asp-area="" asp-controller="Referral" asp-action="Index">My Referrals</a>
                             </li>
                         }
                         @if (User.IsInRole("Admin") || User.IsInRole("TalentTeam"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Referral" asp-action="AllReferrals">All Referrals</a>
+                                <a class="nav-link" asp-area="" asp-controller="Referral" asp-action="AllReferrals">All Referrals</a>
                             </li>
                         }
                     </ul>
@@ -40,18 +37,18 @@
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item">
-                                <span class="nav-link text-dark">@User.Identity.Name</span>
+                                <span class="nav-link nav-user">@User.Identity.Name</span>
                             </li>
                             <li class="nav-item">
                                 <form asp-controller="Account" asp-action="Logout" method="post">
-                                    <button type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+                                    <button type="submit" class="nav-link btn btn-link">Logout</button>
                                 </form>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
+                                <a class="nav-link" asp-controller="Account" asp-action="Login">Login</a>
                             </li>
                         }
                     </ul>
@@ -65,9 +62,9 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <footer class="footer-wr mt-auto">
         <div class="container">
-            &copy; 2026 - WiseReferral - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2026 WiseReferral
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
