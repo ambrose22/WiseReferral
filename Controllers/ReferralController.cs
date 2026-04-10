@@ -20,14 +20,21 @@ public class ReferralController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string? search, ReferralStatus? status, string? location)
     {
         var userId = GetCurrentUserId();
         if (userId == null)
             return Forbid();
 
-        var referrals = await _service.GetByUserAsync(userId);
-        return View(referrals);
+        var referrals = await _service.GetByUserAsync(userId, search, status, location);
+        var model = new ReferralFilterViewModel
+        {
+            Search = search,
+            Status = status,
+            Location = location,
+            Results = referrals
+        };
+        return View(model);
     }
 
     [HttpGet]
@@ -110,10 +117,19 @@ public class ReferralController : Controller
 
     [HttpGet]
     [Authorize(Roles = "Admin,TalentTeam")]
-    public async Task<IActionResult> AllReferrals()
+    public async Task<IActionResult> AllReferrals(string? search, ReferralStatus? status, string? location, string? assignedTo)
     {
-        var referrals = await _service.GetAllAsync();
-        return View(referrals);
+        var referrals = await _service.GetAllAsync(search, status, location, assignedTo);
+        var model = new ReferralFilterViewModel
+        {
+            Search = search,
+            Status = status,
+            Location = location,
+            AssignedTo = assignedTo,
+            Results = referrals
+        };
+        ViewData["TalentTeamUsers"] = await _service.GetTalentTeamUsersAsync();
+        return View(model);
     }
 
     [HttpPost]

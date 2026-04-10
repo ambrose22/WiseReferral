@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet add:*)",
+      "Bash(dotnet ef:*)",
+      "Bash(taskkill //F //PID 11764)",
+      "Bash(grep -l \"GetCurrentUserId\\\\|GetCurrentUserRole\" /c/Users/michael.ambrose/WiseRecruiter/JobPortal/Controllers/*.cs)",
+      "Bash(taskkill //F //PID 30484)",
+      "Bash(taskkill //F //PID 24388)",
+      "Bash(dotnet run:*)",
+      "Bash(tasklist //FI \"IMAGENAME eq ReferralTracker.exe\" //FO CSV //NH)",
+      "Bash(taskkill //F //IM ReferralTracker.exe)",
+      "Bash(gh auth:*)",
+      "Bash(taskkill //F //PID 6388)"
+    ]
+  }
+}

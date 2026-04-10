@@ -1,4 +1,4 @@
-@model IEnumerable<ReferralTracker.Models.Referral>
+@model ReferralTracker.Models.ViewModels.ReferralFilterViewModel
 
 @{
     ViewData["Title"] = "My Referrals";
@@ -9,11 +9,56 @@
     <a asp-action="Create" class="btn btn-peach">Submit a Referral</a>
 </div>
 
-@if (!Model.Any())
+<div class="filter-bar mb-3">
+    <form method="get" asp-action="Index" class="row g-2 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label form-label-sm">Search</label>
+            <input type="text" name="search" value="@Model.Search" class="form-control form-control-sm" placeholder="Candidate name or email..." />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label form-label-sm">Status</label>
+            <select name="status" class="form-select form-select-sm">
+                <option value="">All Statuses</option>
+                @foreach (var s in Enum.GetValues<ReferralTracker.Models.ReferralStatus>())
+                {
+                    <option value="@s" selected="@(Model.Status == s)">@s</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label form-label-sm">Location</label>
+            <select name="location" class="form-select form-select-sm">
+                <option value="">All Locations</option>
+                @foreach (var loc in ReferralTracker.Models.ViewModels.ReferralViewModel.Locations)
+                {
+                    <option value="@loc" selected="@(Model.Location == loc)">@loc</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+            @if (Model.HasActiveFilters)
+            {
+                <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Clear</a>
+            }
+        </div>
+    </form>
+</div>
+
+@if (!Model.Results.Any())
 {
-    <div class="alert alert-info">
-        You haven't submitted any referrals yet. Click "Submit a Referral" to get started!
-    </div>
+    @if (Model.HasActiveFilters)
+    {
+        <div class="alert alert-warning">
+            No referrals match your filters. <a asp-action="Index">Clear filters</a> to see all your referrals.
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            You haven't submitted any referrals yet. Click "Submit a Referral" to get started!
+        </div>
+    }
 }
 else
 {
@@ -29,7 +74,7 @@ else
                 </tr>
             </thead>
             <tbody>
-                @foreach (var r in Model)
+                @foreach (var r in Model.Results)
                 {
                     var badgeClass = r.Status switch
                     {

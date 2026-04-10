@@ -250,3 +250,20 @@ a:hover {
     font-weight: 700;
     color: var(--wr-navy);
 }
+
+/* === Filter bar === */
+.filter-bar {
+    background: #fff;
+    border-radius: var(--wr-card-radius);
+    box-shadow: var(--wr-card-shadow);
+    padding: 1rem 1.25rem;
+}
+
+.filter-bar .form-label-sm {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--wr-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.25rem;
+}

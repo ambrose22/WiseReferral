@@ -18,11 +18,15 @@ public class ReferralService : IReferralService
         _userManager = userManager;
     }
 
-    public async Task<IEnumerable<Referral>> GetByUserAsync(string userId)
+    public async Task<IEnumerable<Referral>> GetByUserAsync(string userId, string? search = null, ReferralStatus? status = null, string? location = null)
     {
-        return await _context.Referrals
+        var query = _context.Referrals
             .Include(r => r.Comments)
-            .Where(r => r.ReferredByUserId == userId)
+            .Where(r => r.ReferredByUserId == userId);
+
+        query = ApplyFilters(query, search, status, location);
+
+        return await query
             .OrderByDescending(r => r.CreatedUtc)
             .ToListAsync();
     }
@@ -90,12 +94,22 @@ public class ReferralService : IReferralService
         await _context.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<Referral>> GetAllAsync()
+    public async Task<IEnumerable<Referral>> GetAllAsync(string? search = null, ReferralStatus? status = null, string? location = null, string? assignedTo = null)
     {
-        return await _context.Referrals
+        var query = _context.Referrals
             .Include(r => r.ReferredByUser)
             .Include(r => r.AssignedToUser)
             .Include(r => r.Comments)
+            .AsQueryable();
+
+        query = ApplyFilters(query, search, status, location);
+
+        if (!string.IsNullOrWhiteSpace(assignedTo))
+        {
+            query = query.Where(r => r.AssignedToUserId == assignedTo);
+        }
+
+        return await query
             .OrderByDescending(r => r.CreatedUtc)
             .ToListAsync();
     }
@@ -189,5 +203,29 @@ public class ReferralService : IReferralService
     public async Task<IEnumerable<ApplicationUser>> GetTalentTeamUsersAsync()
     {
         return await _userManager.GetUsersInRoleAsync("TalentTeam");
+    }
+
+    private static IQueryable<Referral> ApplyFilters(IQueryable<Referral> query, string? search, ReferralStatus? status, string? location)
+    {
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim().ToLower();
+            query = query.Where(r =>
+                r.CandidateFirstName.ToLower().Contains(term) ||
+                r.CandidateLastName.ToLower().Contains(term) ||
+                r.CandidateEmail.ToLower().Contains(term));
+        }
+
+        if (status.HasValue)
+        {
+            query = query.Where(r => r.Status == status.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(location))
+        {
+            query = query.Where(r => r.Location == location);
+        }
+
+        return query;
     }
 }
